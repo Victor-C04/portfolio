@@ -1,3 +1,8 @@
+
+/* =========================================
+   NAVIGATION AND MOBILE MENU
+========================================= */
+
 const navLinks = document.querySelectorAll('header nav a');
 const logoLink = document.querySelector('.logo');
 const sections = document.querySelectorAll('section');
@@ -11,23 +16,27 @@ menuIcon.addEventListener('click', () => {
 
 const activePage = () => {
     navLinks.forEach(link => {
-        link.classList.remove('active')
+        link.classList.remove('active');
     });
 
     sections.forEach(section => {
-        section.classList.remove('active')
+        section.classList.remove('active');
     });
 
     menuIcon.classList.remove('bx-x');
     navbar.classList.remove('active');
-}
+};
+
+/* =========================================
+   SECTION NAVIGATION
+========================================= */
 
 navLinks.forEach((link, idx) => {
     link.addEventListener('click', () => {
-        if(!link.classList.contains('active')){
+        if (!link.classList.contains('active')) {
             activePage();
 
-            link.classList.add('active')
+            link.classList.add('active');
 
             setTimeout(() => {
                 sections[idx].classList.add('active');
@@ -36,8 +45,12 @@ navLinks.forEach((link, idx) => {
     });
 });
 
+/* =========================================
+   LOGO NAVIGATION - HOME
+========================================= */
+
 logoLink.addEventListener('click', () => {
-    if(!navLinks[0].classList.contains('active')){
+    if (!navLinks[0].classList.contains('active')) {
         activePage();
 
         navLinks[0].classList.add('active');
@@ -48,66 +61,136 @@ logoLink.addEventListener('click', () => {
     }
 });
 
+/* =========================================
+   RESUME SECTION TABS
+========================================= */
+
 const resumeBtns = document.querySelectorAll('.resume-btn');
+const resumeDetails = document.querySelectorAll('.resume-detail');
 
 resumeBtns.forEach((btn, idx) => {
     btn.addEventListener('click', () => {
-        const resumeDetails = document.querySelectorAll('.resume-detail');
 
-        resumeBtns.forEach(btn => {
-            btn.classList.remove('active');
+        resumeBtns.forEach(button => {
+            button.classList.remove('active');
         });
+
         btn.classList.add('active');
 
         resumeDetails.forEach(detail => {
             detail.classList.remove('active');
         });
-        resumeDetails[idx].classList.add('active');
-    })
+
+        if (resumeDetails[idx]) {
+            resumeDetails[idx].classList.add('active');
+        }
+    });
 });
 
-const arrowRight = document.querySelector('.portfolio-box .navigation .arrow-right');
-const arrowLeft = document.querySelector('.portfolio-box .navigation .arrow-left');
+/* =========================================
+   PORTFOLIO PROJECT CAROUSEL
+========================================= */
+
+const arrowRight = document.querySelector(
+    '.portfolio-box .navigation .arrow-right'
+);
+
+const arrowLeft = document.querySelector(
+    '.portfolio-box .navigation .arrow-left'
+);
+
+const portfolioDetails = document.querySelectorAll(
+    '.portfolio-detail'
+);
+
+const portfolioImages = document.querySelectorAll(
+    '.portfolio-carousel .img-slide .img-item'
+);
+
+const imgSlide = document.querySelector(
+    '.portfolio-carousel .img-slide'
+);
 
 let index = 0;
 
-arrowLeft.classList.add('disabled');
-arrowRight.classList.remove('disabled');
+// Automatically detect the number of projects
+const totalProjects = Math.min(
+    portfolioDetails.length,
+    portfolioImages.length
+);
+
+/* =========================================
+   UPDATE ACTIVE PORTFOLIO PROJECT
+========================================= */
 
 const activePortfolio = () => {
-    const imgSlide = document.querySelector('.portfolio-carousel .img-slide');
-    const portfolioDetails = document.querySelectorAll('.portfolio-detail')
 
-    imgSlide.style.transform = `translateX(calc(${index * -100}% - ${index * 2}rem))`;
+    if (totalProjects === 0 || !imgSlide) {
+        return;
+    }
 
-    portfolioDetails.forEach(detail => {
-        detail.classList.remove('active');
+    // Move carousel to the selected project
+    imgSlide.style.transform =
+        `translateX(calc(${index * -100}% - ${index * 2}rem))`;
+
+    // Update active project description
+    portfolioDetails.forEach((detail, idx) => {
+        detail.classList.toggle('active', idx === index);
     });
-    portfolioDetails[index].classList.add('active');
+
+    // Disable previous arrow at first project
+    if (arrowLeft) {
+        arrowLeft.classList.toggle(
+            'disabled',
+            index === 0
+        );
+        arrowLeft.disabled = index === 0;
+    }
+
+    // Disable next arrow at last project
+    if (arrowRight) {
+        arrowRight.classList.toggle(
+            'disabled',
+            index === totalProjects - 1
+        );
+        arrowRight.disabled = index === totalProjects - 1;
+    }
+};
+
+/* =========================================
+   NEXT PROJECT
+========================================= */
+
+if (arrowRight) {
+    arrowRight.addEventListener('click', () => {
+
+        if (index < totalProjects - 1) {
+            index++;
+            activePortfolio();
+        }
+
+    });
 }
 
-arrowRight.addEventListener('click', () => {
-    if (index < 4) {
-        index++;
-        arrowLeft.classList.remove('disabled');
+/* =========================================
+   PREVIOUS PROJECT
+========================================= */
 
-        if (index === 4) {
-            arrowRight.classList.add('disabled');
+if (arrowLeft) {
+    arrowLeft.addEventListener('click', () => {
+
+        if (index > 0) {
+            index--;
+            activePortfolio();
         }
-    }
 
+    });
+}
+
+/* =========================================
+   INITIALIZE PORTFOLIO
+========================================= */
+
+if (totalProjects > 0) {
     activePortfolio();
-});
-
-arrowLeft.addEventListener('click', () => {
-    if (index > 0) {
-        index--;
-        arrowRight.classList.remove('disabled');
-
-        if (index === 0) {
-            arrowLeft.classList.add('disabled');
-        }
-    }
-
-    activePortfolio();
-});
+}
